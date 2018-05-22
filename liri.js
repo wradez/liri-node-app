@@ -52,10 +52,18 @@ switch(command){
         });
         break;
     case "spotify-this-song":
-        playThatThing(secondInput);
+        if(secondInput != undefined){
+            playThatThing(secondInput);
+        }else{
+            playThatThing("Gold On the Ceiling");
+        }
         break;
     case "movie-this":
-        whatsThatMovie();
+        if(secondInput != undefined){
+            whatsThatMovie(secondInput);
+        }else{
+            whatsThatMovie("Mr. Nobody");
+        }
         break;
     case "do-what-it-says":
         doThatThing();
@@ -82,9 +90,9 @@ function playThatThing(songArg){
 }
 
 
-function whatsThatMovie(){
+function whatsThatMovie(movieArg){
 
-    var queryUrl = "http://www.omdbapi.com/?t=" + secondInput + "&y=&plot=short&apikey=53454a1";
+    var queryUrl = "http://www.omdbapi.com/?t=" + movieArg + "&y=&plot=short&apikey=53454a1";
 
     request(queryUrl, function(error, response, body) {
 
