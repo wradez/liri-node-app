@@ -11,6 +11,7 @@ var spotify = new Spotify(keys.spotify);
 var Twitter = require("twitter");
 var client = new Twitter(keys.twitter);
 
+var fs = require("fs");
 var request = require('request');
 var command = process.argv[2];
 var secondInput;
@@ -49,26 +50,30 @@ switch(command){
 
             }
         });
-
+        break;
     case "spotify-this-song":
-        playThatThing();
+        playThatThing(secondInput);
+        break;
     case "movie-this":
         whatsThatMovie();
+        break;
     case "do-what-it-says":
         doThatThing();
+        break;
 }
-function playThatThing(){
+function playThatThing(songArg){
 
-    spotify.search({ type: "track", query: secondInput }, function(err, data) {
+    spotify.search({ type: "track", query: songArg }, function(err, data) {
         if (err) {
           return console.log('Error occurred: ' + err);
         }
        var songInfo = data.tracks.items[0];
        
        var artist = songInfo.album.artists[0].name;
-       var songName = secondInput;
+       var songName = songInfo.name;
        var previewURL = songInfo.preview_url;
        var albumName = songInfo.album.name;
+
 
        console.log("\nGreat choice! Here's your song info:\n\nSong Name: " + songName + "\nArtist: " + artist + "\nAlbum Name: " + albumName + "\nHave a listen: " + previewURL + "\n"); 
        
@@ -76,10 +81,57 @@ function playThatThing(){
       
 }
 
+
 function whatsThatMovie(){
-    
+
+    var queryUrl = "http://www.omdbapi.com/?t=" + secondInput + "&y=&plot=short&apikey=53454a1";
+
+    request(queryUrl, function(error, response, body) {
+
+        // If the request is successful
+        if (!error && response.statusCode === 200) {
+            var movieInfo = JSON.parse(body);
+
+            var title = movieInfo.Title;
+            var year = movieInfo.Year;
+            var ratingsIMDB = movieInfo.Ratings[0].Value;
+            var ratingsRotten = movieInfo.Ratings[1].Value;
+            var productionCountry = movieInfo.Country;
+            var language = movieInfo.Language;
+            var plot = movieInfo.Plot;
+            var actors = movieInfo.Actors;
+
+          console.log("Your Selected Movie Poster:\n");
+          console.log("\n--------------------------------------------------------------------------------------------------------------------------");
+          console.log("| Movie Title: " + title);
+          console.log("| Year of Production: " + year);
+          console.log("| IMDB Rating: " + ratingsIMDB);
+          console.log("| Rotten Tomatos Rating: " + ratingsRotten);
+          console.log("| Year of Production: " + year);
+          console.log("| Produced in: " + productionCountry);
+          console.log("| Language : " + language);
+          console.log("| Plot: " + plot);
+          console.log("| Actors: " + actors);
+          console.log("-------------------------------------------------------------------------------------------------------------------------\n");
+
+        }else if(error){
+            console.log(error);
+        }
+
+      });
+      
 }
 
 function doThatThing(){
 
-}
+    fs.readFile("random.txt", "utf8", function(error, data) {
+
+        if (error) {
+            return console.log(error);
+          }
+
+        var dataArray = data.split(",");
+
+        playThatThing(dataArray[1]);
+    });
+};
